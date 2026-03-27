@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goa Sentinel — One Pager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { inter: ['Inter', 'sans-serif'] },
+          colors: {
+            navy: { 900: '#0a0e1a', 800: '#111827', 700: '#1a2235', 600: '#243049' },
+            sentinel: { gold: '#d4a843', blue: '#3b82f6', purple: '#8b5cf6' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page-container { box-shadow: none !important; }
+    }
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-border { background: linear-gradient(135deg, #3b82f6, #8b5cf6, #d4a843); padding: 1px; border-radius: 12px; }
+    .gradient-border-inner { background: #1a2235; border-radius: 11px; }
+    .glow { box-shadow: 0 0 40px rgba(59, 130, 246, 0.08); }
+    .gold-line { background: linear-gradient(90deg, transparent, #d4a843, transparent); height: 1px; }
+  </style>
+</head>
+<body class="bg-navy-900 text-white min-h-screen flex items-center justify-center p-4">
+
+  <!-- A4-ish container -->
+  <div class="page-container max-w-[900px] w-full bg-navy-800 rounded-2xl overflow-hidden glow" style="box-shadow: 0 0 60px rgba(59,130,246,0.1), 0 0 120px rgba(139,92,246,0.05);">
+
+    <!-- Header -->
+    <div class="relative px-10 pt-10 pb-6">
+      <!-- Top accent line -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sentinel-blue via-sentinel-purple to-sentinel-gold"></div>
+
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white text-lg tracking-tight">GS</div>
+            <div>
+              <h1 class="text-2xl font-extrabold tracking-tight">GOA SENTINEL</h1>
+              <p class="text-[11px] text-sentinel-gold uppercase tracking-[0.25em] font-medium">AI-Powered Tourism Reputation Command Centre</p>
+            </div>
+          </div>
+        </div>
+        <div class="text-right mt-1">
+          <p class="text-[10px] text-slate-500 uppercase tracking-wider">Prepared for</p>
+          <p class="text-sm font-semibold text-slate-300">Goa Tourism Department</p>
+        </div>
+      </div>
+
+      <!-- Tagline -->
+      <p class="mt-5 text-lg font-light text-slate-300">Detect. Defend. Dominate the narrative — <span class="text-white font-medium">before it goes viral.</span></p>
+
+      <div class="gold-line mt-5"></div>
+    </div>
+
+    <!-- The Problem -->
+    <div class="px-10 pb-5">
+      <div class="bg-red-500/5 border border-red-500/20 rounded-xl px-6 py-4">
+        <h2 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">The Problem</h2>
+        <p class="text-[13px] text-slate-300 leading-relaxed">
+          A single negative post about Goa can reach <span class="text-white font-semibold">1M+ people in hours</span>. Across Twitter, Instagram, Reddit, Google Reviews, TripAdvisor, and news — in Hindi, English, Russian, Konkani, German, and 10+ more languages — no team can monitor everything manually. By the time it reaches the minister's desk, the damage is done.
+        </p>
+      </div>
+    </div>
+
+    <!-- What It Does — 5 pillars -->
+    <div class="px-10 pb-5">
+      <h2 class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3">What Goa Sentinel Does</h2>
+      <div class="grid grid-cols-5 gap-2.5">
+        <!-- Monitor -->
+        <div class="gradient-border">
+          <div class="gradient-border-inner p-3.5 h-full">
+            <div class="text-2xl mb-2">📡</div>
+            <p class="text-[11px] font-semibold text-white leading-tight mb-1">Monitors 24/7</p>
+            <p class="text-[10px] text-slate-400 leading-snug">6 platforms, 15+ languages, every mention of Goa tourism scanned in real time</p>
+          </div>
+        </div>
+        <!-- Detect -->
+        <div class="gradient-border">
+          <div class="gradient-border-inner p-3.5 h-full">
+            <div class="text-2xl mb-2">⚡</div>
+            <p class="text-[11px] font-semibold text-white leading-tight mb-1">Detects Viral Threats</p>
+            <p class="text-[10px] text-slate-400 leading-snug">Alerts the minister's office when negative posts cross 10K views — within minutes</p>
+          </div>
+        </div>
+        <!-- Classify -->
+        <div class="gradient-border">
+          <div class="gradient-border-inner p-3.5 h-full">
+            <div class="text-2xl mb-2">🔍</div>
+            <p class="text-[11px] font-semibold text-white leading-tight mb-1">Real vs Fake</p>
+            <p class="text-[10px] text-slate-400 leading-snug">AI separates genuine tourist complaints from manufactured bot attacks & competitor sabotage</p>
+          </div>
+        </div>
+        <!-- Respond -->
+        <div class="gradient-border">
+          <div class="gradient-border-inner p-3.5 h-full">
+            <div class="text-2xl mb-2">✍️</div>
+            <p class="text-[11px] font-semibold text-white leading-tight mb-1">Auto Counter-Narrative</p>
+            <p class="text-[10px] text-slate-400 leading-snug">Drafts 3 data-backed response options for every threat, ready for the social team to post</p>
+          </div>
+        </div>
+        <!-- Dashboard -->
+        <div class="gradient-border">
+          <div class="gradient-border-inner p-3.5 h-full">
+            <div class="text-2xl mb-2">📊</div>
+            <p class="text-[11px] font-semibold text-white leading-tight mb-1">Live Dashboard</p>
+            <p class="text-[10px] text-slate-400 leading-snug">Sentiment scores by week, month, season — one screen for the minister's office</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works — Pipeline -->
+    <div class="px-10 pb-5">
+      <h2 class="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3">How It Works</h2>
+      <div class="flex items-center gap-0">
+        <!-- Step 1 -->
+        <div class="flex-1 bg-blue-500/10 border border-blue-500/20 rounded-l-xl p-3.5">
+          <p class="text-[10px] font-bold text-blue-400 mb-0.5">STEP 1</p>
+          <p class="text-[11px] font-semibold text-white">COLLECT</p>
+          <p class="text-[10px] text-slate-400 leading-snug mt-1">6 parallel AI agents pull mentions from Twitter/X, Reddit, Instagram, Google Reviews, TripAdvisor & news</p>
+        </div>
+        <div class="text-blue-500/40 text-lg -mx-1 z-10">›</div>
+        <!-- Step 2 -->
+        <div class="flex-1 bg-purple-500/10 border border-purple-500/20 p-3.5">
+          <p class="text-[10px] font-bold text-purple-400 mb-0.5">STEP 2</p>
+          <p class="text-[11px] font-semibold text-white">ANALYSE</p>
+          <p class="text-[10px] text-slate-400 leading-snug mt-1">Sentiment scoring, language detection, viral velocity, authenticity classification</p>
+        </div>
+        <div class="text-purple-500/40 text-lg -mx-1 z-10">›</div>
+        <!-- Step 3 -->
+        <div class="flex-1 bg-amber-500/10 border border-amber-500/20 p-3.5">
+          <p class="text-[10px] font-bold text-amber-400 mb-0.5">STEP 3</p>
+          <p class="text-[11px] font-semibold text-white">ALERT</p>
+          <p class="text-[10px] text-slate-400 leading-snug mt-1">Severity-ranked notifications (Low → Critical) with context and suggested actions</p>
+        </div>
+        <div class="text-amber-500/40 text-lg -mx-1 z-10">›</div>
+        <!-- Step 4 -->
+        <div class="flex-1 bg-green-500/10 border border-green-500/20 rounded-r-xl p-3.5">
+          <p class="text-[10px] font-bold text-green-400 mb-0.5">STEP 4</p>
+          <p class="text-[11px] font-semibold text-white">RESPOND</p>
+          <p class="text-[10px] text-slate-400 leading-snug mt-1">AI counter-narratives in 3 styles: Acknowledge, Provide Context, Redirect Positive</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two columns: Benefits + Numbers -->
+    <div class="px-10 pb-5 grid grid-cols-2 gap-5">
+
+      <!-- Who Benefits -->
+      <div>
+        <h2 class="text-xs font-bold text-green-400 uppercase tracking-wider mb-3">Who Benefits</h2>
+        <div class="space-y-2">
+          <div class="flex gap-3 items-start">
+            <div class="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-[13px]">🏛</span>
+            </div>
+            <div>
+              <p class="text-[11px] font-semibold text-white">Minister's Office</p>
+              <p class="text-[10px] text-slate-400">Early warning system — respond in minutes, not days</p>
+            </div>
+          </div>
+          <div class="flex gap-3 items-start">
+            <div class="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-[13px]">📱</span>
+            </div>
+            <div>
+              <p class="text-[11px] font-semibold text-white">Social Media Team</p>
+              <p class="text-[10px] text-slate-400">Pre-drafted responses ready for approval and posting</p>
+            </div>
+          </div>
+          <div class="flex gap-3 items-start">
+            <div class="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-[13px]">📈</span>
+            </div>
+            <div>
+              <p class="text-[11px] font-semibold text-white">Tourism Department</p>
+              <p class="text-[10px] text-slate-400">Data-driven satisfaction view by season, source & language</p>
+            </div>
+          </div>
+          <div class="flex gap-3 items-start">
+            <div class="w-7 h-7 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="text-[13px]">🛡</span>
+            </div>
+            <div>
+              <p class="text-[11px] font-semibold text-white">Crisis Management</p>
+              <p class="text-[10px] text-slate-400">Coordinated attack detection prevents overreaction to fake narratives</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- By The Numbers -->
+      <div>
+        <h2 class="text-xs font-bold text-sentinel-gold uppercase tracking-wider mb-3">By The Numbers</h2>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-navy-700 rounded-xl p-3.5 border border-slate-700/30 text-center">
+            <p class="text-2xl font-extrabold text-blue-400">&lt;2<span class="text-base font-medium text-blue-400/60">min</span></p>
+            <p class="text-[10px] text-slate-400 mt-1">Alert latency from detection to minister notification</p>
+          </div>
+          <div class="bg-navy-700 rounded-xl p-3.5 border border-slate-700/30 text-center">
+            <p class="text-2xl font-extrabold text-purple-400">6<span class="text-base font-medium text-purple-400/60"> / 15+</span></p>
+            <p class="text-[10px] text-slate-400 mt-1">Platforms monitored / Languages supported</p>
+          </div>
+          <div class="bg-navy-700 rounded-xl p-3.5 border border-slate-700/30 text-center">
+            <p class="text-2xl font-extrabold text-green-400">&lt;60<span class="text-base font-medium text-green-400/60">sec</span></p>
+            <p class="text-[10px] text-slate-400 mt-1">Counter-narrative drafted per threat</p>
+          </div>
+          <div class="bg-navy-700 rounded-xl p-3.5 border border-slate-700/30 text-center">
+            <p class="text-2xl font-extrabold text-sentinel-gold">24/7</p>
+            <p class="text-[10px] text-slate-400 mt-1">Automated monitoring, zero manual scanning</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-10 py-4 border-t border-slate-700/30 flex items-center justify-between">
+      <p class="text-[10px] text-slate-500">Built for the Goa Tourism Department &nbsp;•&nbsp; Powered by multi-agent AI architecture</p>
+      <p class="text-[10px] text-slate-600">Confidential &nbsp;•&nbsp; 2026</p>
+    </div>
+  </div>
+
+</body>
+</html>
