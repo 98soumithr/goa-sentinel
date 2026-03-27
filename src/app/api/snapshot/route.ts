@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { generateDashboardSnapshot } from "@/mock-data/generator";
+import { realDashboardSnapshot } from "@/mock-data/real-data";
 
 export async function GET() {
-  const snapshot = generateDashboardSnapshot();
+  const snapshot = realDashboardSnapshot();
   return NextResponse.json(snapshot);
 }

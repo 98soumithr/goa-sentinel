@@ -1,10 +1,22 @@
 import { NextRequest } from "next/server";
-import { generateDashboardSnapshot, generateDataPoint } from "@/mock-data/generator";
+import { realDashboardSnapshot, allRealData, realAlerts } from "@/mock-data/real-data";
 import type { SentimentDataPoint, Alert } from "@/types";
 
-// Evaluate if a new post should trigger an alert
+// Cycle through real data points for the SSE stream
+let postIndex = 0;
+function getNextRealPost(): SentimentDataPoint {
+  const post = allRealData[postIndex % allRealData.length];
+  postIndex++;
+  // Return with fresh timestamp so it appears live
+  return {
+    ...post,
+    id: `live-${Date.now()}-${postIndex}`,
+    timestamp: new Date(),
+  };
+}
+
+// Check if a post should trigger an alert
 function evaluateForAlert(post: SentimentDataPoint): Alert | null {
-  // High views + negative sentiment = viral negative alert
   if (post.platformMetrics.views > 10000 && post.sentiment < -0.3) {
     return {
       id: crypto.randomUUID(),
@@ -34,7 +46,6 @@ function evaluateForAlert(post: SentimentDataPoint): Alert | null {
     };
   }
 
-  // Low authenticity = potential coordinated attack
   if (post.authenticityScore < 0.3 && post.sentiment < -0.2) {
     return {
       id: crypto.randomUUID(),
@@ -54,21 +65,21 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream({
     start(controller) {
-      // Send initial snapshot
-      const snapshot = generateDashboardSnapshot();
+      // Send initial snapshot with real data
+      const snapshot = realDashboardSnapshot();
       controller.enqueue(
         encoder.encode(`event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n`)
       );
 
-      // Send new posts every 3 seconds
+      // Send real posts every 3 seconds (cycling through scraped data)
       const interval = setInterval(() => {
         try {
-          const post = generateDataPoint();
+          const post = getNextRealPost();
           controller.enqueue(
             encoder.encode(`event: new_post\ndata: ${JSON.stringify(post)}\n\n`)
           );
 
-          // Check for alerts (~15% chance of notable post)
+          // Check for alerts on negative posts
           const alert = evaluateForAlert(post);
           if (alert) {
             controller.enqueue(
@@ -76,9 +87,9 @@ export async function GET(req: NextRequest) {
             );
           }
 
-          // Send updated snapshot every 15 seconds
-          if (Math.random() < 0.2) {
-            const updatedSnapshot = generateDashboardSnapshot();
+          // Send updated snapshot periodically
+          if (Math.random() < 0.15) {
+            const updatedSnapshot = realDashboardSnapshot();
             controller.enqueue(
               encoder.encode(
                 `event: snapshot\ndata: ${JSON.stringify(updatedSnapshot)}\n\n`
