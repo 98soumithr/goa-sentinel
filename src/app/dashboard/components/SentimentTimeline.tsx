@@ -28,7 +28,6 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
     const chartW = w - padding.left - padding.right;
     const chartH = h - padding.top - padding.bottom;
 
-    // Clear
     ctx.clearRect(0, 0, w, h);
 
     // Grid lines
@@ -46,7 +45,7 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
     ctx.fillStyle = "#64748b";
     ctx.font = "11px Inter, sans-serif";
     ctx.textAlign = "right";
-    const yLabels = ["1.0", "0.5", "0.0", "-0.5", "-1.0"];
+    const yLabels = ["+1.0", "+0.5", "0.0", "-0.5", "-1.0"];
     for (let i = 0; i < yLabels.length; i++) {
       const y = padding.top + (chartH / 4) * i + 4;
       ctx.fillText(yLabels[i], padding.left - 8, y);
@@ -54,19 +53,29 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
 
     // X-axis labels
     ctx.textAlign = "center";
-    const step = Math.max(1, Math.floor(hourlyTrend.length / 12));
-    for (let i = 0; i < hourlyTrend.length; i += step) {
-      const x = padding.left + (chartW / (hourlyTrend.length - 1)) * i;
-      ctx.fillText(hourlyTrend[i].hour, x, h - padding.bottom + 20);
+    ctx.fillStyle = "#64748b";
+    const dataLen = hourlyTrend.length;
+    const step = Math.max(1, Math.floor(dataLen / 12));
+    for (let i = 0; i < dataLen; i += step) {
+      const x = padding.left + (chartW / Math.max(dataLen - 1, 1)) * i;
+      ctx.fillText(hourlyTrend[i].hour, x, h - padding.bottom + 16);
     }
 
-    // Sentiment line
-    const points = hourlyTrend.map((d, i) => ({
-      x: padding.left + (chartW / (hourlyTrend.length - 1)) * i,
-      y: padding.top + chartH / 2 - (d.sentiment * chartH) / 2,
-    }));
+    // Filter out zero-volume hours for smoother line
+    const nonEmpty = hourlyTrend.filter(d => d.volume > 0);
+    if (nonEmpty.length < 2) return;
 
-    // Gradient fill under line
+    const points = nonEmpty.map((d) => {
+      const origIdx = hourlyTrend.indexOf(d);
+      return {
+        x: padding.left + (chartW / Math.max(dataLen - 1, 1)) * origIdx,
+        y: padding.top + chartH / 2 - (d.sentiment * chartH) / 2,
+        sentiment: d.sentiment,
+        volume: d.volume,
+      };
+    });
+
+    // Gradient fill
     const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
     gradient.addColorStop(0, "rgba(59, 130, 246, 0.3)");
     gradient.addColorStop(0.5, "rgba(59, 130, 246, 0.05)");
@@ -84,7 +93,7 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
     ctx.fillStyle = gradient;
     ctx.fill();
 
-    // Line itself
+    // Line
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
@@ -95,12 +104,13 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // Volume bars (subtle, at bottom)
+    // Volume bars — color-coded
     const maxVol = Math.max(...hourlyTrend.map((d) => d.volume), 1);
-    ctx.fillStyle = "rgba(139, 92, 246, 0.2)";
     for (let i = 0; i < hourlyTrend.length; i++) {
+      if (hourlyTrend[i].volume === 0) continue;
       const barH = (hourlyTrend[i].volume / maxVol) * 30;
-      const x = padding.left + (chartW / (hourlyTrend.length - 1)) * i - 3;
+      const x = padding.left + (chartW / Math.max(dataLen - 1, 1)) * i - 3;
+      ctx.fillStyle = hourlyTrend[i].sentiment >= 0 ? "rgba(59, 130, 246, 0.25)" : "rgba(239, 68, 68, 0.25)";
       ctx.fillRect(x, padding.top + chartH - barH, 6, barH);
     }
 
@@ -115,12 +125,15 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Data points
+    // Data points with sentiment colors
     for (const p of points) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.y < zeroY ? "#3b82f6" : "#ef4444";
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = p.sentiment >= 0.15 ? "#22c55e" : p.sentiment <= -0.15 ? "#ef4444" : "#eab308";
       ctx.fill();
+      ctx.strokeStyle = "#0a0e1a";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   }, [hourlyTrend]);
 
@@ -129,21 +142,21 @@ export function SentimentTimeline({ hourlyTrend }: TimelineProps) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-white">Sentiment Timeline</h2>
-          <p className="text-xs text-slate-500">Hourly sentiment score across all platforms</p>
+          <p className="text-xs text-slate-500">Hourly sentiment score (IST) across all sources</p>
         </div>
-        <div className="flex gap-2">
-          {["24h", "7d", "30d", "90d"].map((period) => (
-            <button
-              key={period}
-              className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                period === "24h"
-                  ? "bg-blue-500/20 text-blue-400"
-                  : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
-              }`}
-            >
-              {period}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-[10px] text-slate-500">Positive</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-yellow-500" />
+            <span className="text-[10px] text-slate-500">Neutral</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+            <span className="text-[10px] text-slate-500">Negative</span>
+          </div>
         </div>
       </div>
       <canvas
