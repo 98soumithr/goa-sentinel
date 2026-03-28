@@ -123,12 +123,24 @@ export function AlertsFeed({ alerts }: AlertsFeedProps) {
                     </span>
                   </div>
                   <span className="text-slate-700">|</span>
-                  {/* Source with platform icon */}
+                  {/* Source with platform icon — clickable */}
                   <div className="flex items-center gap-1.5">
                     <span className="text-[10px] font-bold text-slate-500">{sourceIcons[src]}</span>
-                    <span className="text-[11px] text-slate-300 font-medium">
-                      Reported on {sourceLabels[src]}
-                    </span>
+                    {alert.triggerPost.url ? (
+                      <a
+                        href={alert.triggerPost.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[11px] text-blue-400 hover:text-blue-300 font-medium underline underline-offset-2 decoration-blue-400/30 hover:decoration-blue-300/50 transition-colors"
+                      >
+                        View on {sourceLabels[src]}
+                      </a>
+                    ) : (
+                      <span className="text-[11px] text-slate-300 font-medium">
+                        Reported on {sourceLabels[src]}
+                      </span>
+                    )}
                   </div>
                   {/* Location */}
                   {alert.triggerPost.location && (
@@ -165,6 +177,20 @@ export function AlertsFeed({ alerts }: AlertsFeedProps) {
                   <span className="text-[10px] text-slate-500">
                     by {alert.triggerPost.author}
                   </span>
+                  {alert.triggerPost.url && (
+                    <a
+                      href={alert.triggerPost.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Original
+                    </a>
+                  )}
                   {alert.generatedResponses && alert.generatedResponses.length > 0 && (
                     <span className="text-[10px] text-green-400 font-medium ml-auto flex items-center gap-1">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

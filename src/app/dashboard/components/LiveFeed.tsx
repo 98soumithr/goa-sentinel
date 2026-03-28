@@ -100,7 +100,7 @@ export function LiveFeed({ posts }: LiveFeedProps) {
           return (
             <div
               key={post.id}
-              className="bg-slate-800/40 rounded-lg p-3.5 border border-slate-700/30 hover:border-slate-600/50 transition-all"
+              className="bg-slate-800/40 rounded-lg p-3.5 border border-slate-700/30 hover:border-slate-600/50 transition-all group"
             >
               {/* Top row: Source badge + Date + Badges */}
               <div className="flex items-center justify-between mb-2">
@@ -148,6 +148,22 @@ export function LiveFeed({ posts }: LiveFeedProps) {
 
               {/* Post text */}
               <p className="text-sm text-slate-300 leading-relaxed line-clamp-2 mb-2">{post.originalText}</p>
+
+              {/* View Source link */}
+              {post.url && (
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 mb-2 transition-colors opacity-70 group-hover:opacity-100"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  View on {cfg.label}
+                </a>
+              )}
 
               {/* Bottom row: Sentiment + Metrics */}
               <div className="flex items-center gap-3 pt-1.5 border-t border-slate-700/20">
