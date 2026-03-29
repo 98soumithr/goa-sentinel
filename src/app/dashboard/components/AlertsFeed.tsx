@@ -15,18 +15,14 @@ const severityConfig = {
 };
 
 const sourceLabels: Record<DataSource, string> = {
-  twitter: "Twitter/X",
   reddit: "Reddit",
-  instagram: "Instagram",
   news: "News",
   google_reviews: "Google Reviews",
   tripadvisor: "TripAdvisor",
 };
 
 const sourceIcons: Record<DataSource, string> = {
-  twitter: "𝕏",
   reddit: "r/",
-  instagram: "IG",
   news: "📰",
   google_reviews: "G",
   tripadvisor: "TA",

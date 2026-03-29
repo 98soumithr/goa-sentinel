@@ -1,105 +1,224 @@
 import { NextRequest } from "next/server";
-import { realDashboardSnapshot, allRealData, realAlerts } from "@/mock-data/real-data";
-import type { SentimentDataPoint, Alert } from "@/types";
+import { supabaseAdmin } from "@/lib/db";
+import type { SentimentDataPoint, Alert, DataSource, DashboardSnapshot } from "@/types";
 
-// Cycle through real data points for the SSE stream
-let postIndex = 0;
-function getNextRealPost(): SentimentDataPoint {
-  const post = allRealData[postIndex % allRealData.length];
-  postIndex++;
-  // Return with fresh timestamp so it appears live
+function toSentimentDataPoint(row: Record<string, unknown>): SentimentDataPoint {
   return {
-    ...post,
-    id: `live-${Date.now()}-${postIndex}`,
-    timestamp: new Date(),
+    id: row.id as string,
+    source: row.source as DataSource,
+    timestamp: new Date(row.timestamp as string),
+    sentiment: row.sentiment as number,
+    magnitude: row.magnitude as number,
+    sentimentLabel: row.sentiment_label as "positive" | "negative" | "neutral",
+    language: row.language as string,
+    originalText: row.original_text as string,
+    translatedText: row.translated_text as string | undefined,
+    author: row.author as string,
+    authorFollowers: row.author_followers as number | undefined,
+    platformMetrics: {
+      views: row.views as number,
+      likes: row.likes as number,
+      shares: row.shares as number,
+      comments: row.comments as number,
+    },
+    topics: row.topics as string[],
+    isViral: row.is_viral as boolean,
+    authenticityScore: row.authenticity_score as number,
+    location: row.location as string | undefined,
+    url: (row.url as string) || "",
   };
 }
 
-// Check if a post should trigger an alert
-function evaluateForAlert(post: SentimentDataPoint): Alert | null {
-  if (post.platformMetrics.views > 10000 && post.sentiment < -0.3) {
-    return {
-      id: crypto.randomUUID(),
-      type: "viral_negative",
-      severity: post.platformMetrics.views > 50000 ? "critical" : "high",
-      status: "active",
-      triggerPost: post,
-      generatedResponses: [
-        {
-          id: crypto.randomUUID(),
-          type: "acknowledge_address",
-          text: `We understand concerns about ${post.topics[0] || "tourism"}. The Goa Tourism Department has taken immediate steps to address this. Here are the facts...`,
-          platform: post.source,
-          approved: false,
-          generatedAt: new Date(),
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "provide_context",
-          text: `For context: Goa welcomed 9.5M tourists in 2024 with a 94% satisfaction rate. ${post.topics[0] ? `On ${post.topics[0]}: we've invested ₹200Cr in improvements this year.` : ""}`,
-          platform: post.source,
-          approved: false,
-          generatedAt: new Date(),
-        },
-      ],
-      createdAt: new Date(),
-    };
-  }
+async function fetchSnapshot(): Promise<DashboardSnapshot | null> {
+  try {
+    const { data: posts } = await supabaseAdmin
+      .from("posts")
+      .select("*")
+      .order("timestamp", { ascending: false })
+      .limit(100);
 
-  if (post.authenticityScore < 0.3 && post.sentiment < -0.2) {
-    return {
-      id: crypto.randomUUID(),
-      type: "coordinated_attack",
-      severity: "medium",
-      status: "active",
-      triggerPost: post,
-      createdAt: new Date(),
-    };
-  }
+    const { data: alerts } = await supabaseAdmin
+      .from("alerts")
+      .select("*, posts!trigger_post_id(*), counter_narratives(*)")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(10);
 
-  return null;
+    const mappedPosts = (posts || []).map(toSentimentDataPoint);
+    const totalMentions = mappedPosts.length;
+    const avgSentiment =
+      totalMentions > 0
+        ? mappedPosts.reduce((sum, p) => sum + p.sentiment, 0) / totalMentions
+        : 0;
+
+    const activeAlertsList: Alert[] = (alerts || []).map((a) => ({
+      id: a.id,
+      type: a.type,
+      severity: a.severity,
+      status: a.status,
+      triggerPost: a.posts ? toSentimentDataPoint(a.posts) : mappedPosts[0],
+      generatedResponses: (a.counter_narratives || []).map((cn: Record<string, unknown>) => ({
+        id: cn.id as string,
+        type: cn.type as string,
+        text: cn.text as string,
+        platform: cn.platform as DataSource,
+        approved: cn.approved as boolean,
+        generatedAt: new Date(cn.generated_at as string),
+      })),
+      createdAt: new Date(a.created_at),
+      acknowledgedAt: a.acknowledged_at ? new Date(a.acknowledged_at) : undefined,
+    }));
+
+    const sentimentBySource: Record<string, number> = {};
+    const sourceCounts: Record<string, number> = {};
+    for (const p of mappedPosts) {
+      sentimentBySource[p.source] = (sentimentBySource[p.source] || 0) + p.sentiment;
+      sourceCounts[p.source] = (sourceCounts[p.source] || 0) + 1;
+    }
+    for (const src of Object.keys(sentimentBySource)) {
+      sentimentBySource[src] /= sourceCounts[src] || 1;
+    }
+
+    const langMap: Record<string, { total: number; count: number }> = {};
+    for (const p of mappedPosts) {
+      if (!langMap[p.language]) langMap[p.language] = { total: 0, count: 0 };
+      langMap[p.language].total += p.sentiment;
+      langMap[p.language].count++;
+    }
+    const sentimentByLanguage: Record<string, { score: number; percentage: number }> = {};
+    for (const [lang, data] of Object.entries(langMap)) {
+      sentimentByLanguage[lang] = {
+        score: data.total / data.count,
+        percentage: (data.count / totalMentions) * 100,
+      };
+    }
+
+    const topicCounts: Record<string, number> = {};
+    for (const p of mappedPosts) {
+      for (const t of p.topics) topicCounts[t] = (topicCounts[t] || 0) + 1;
+    }
+    const topTopic = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "tourism";
+
+    return {
+      overallSentiment: avgSentiment,
+      totalMentionsToday: totalMentions,
+      mentionsTrend: 0,
+      activeAlerts: activeAlertsList.filter((a) => a.status === "active").length,
+      criticalAlerts: activeAlertsList.filter((a) => a.severity === "critical").length,
+      topTrendingTopic: topTopic,
+      sentimentBySource: sentimentBySource as Record<DataSource, number>,
+      sentimentByLanguage,
+      hourlyTrend: [],
+      recentPosts: mappedPosts.slice(0, 20),
+      activeAlertsList,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(req: NextRequest) {
   const encoder = new TextEncoder();
+  let lastPostId: string | null = null;
 
   const stream = new ReadableStream({
-    start(controller) {
-      // Send initial snapshot with real data
-      const snapshot = realDashboardSnapshot();
-      controller.enqueue(
-        encoder.encode(`event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n`)
-      );
+    async start(controller) {
+      // Send initial snapshot
+      const snapshot = await fetchSnapshot();
+      if (snapshot) {
+        controller.enqueue(
+          encoder.encode(`event: snapshot\ndata: ${JSON.stringify(snapshot)}\n\n`)
+        );
+        if (snapshot.recentPosts.length > 0) {
+          lastPostId = snapshot.recentPosts[0].id;
+        }
+      }
 
-      // Send real posts every 3 seconds (cycling through scraped data)
-      const interval = setInterval(() => {
+      // Poll DB every 5 seconds for new posts
+      const interval = setInterval(async () => {
         try {
-          const post = getNextRealPost();
-          controller.enqueue(
-            encoder.encode(`event: new_post\ndata: ${JSON.stringify(post)}\n\n`)
-          );
+          let query = supabaseAdmin
+            .from("posts")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(5);
 
-          // Check for alerts on negative posts
-          const alert = evaluateForAlert(post);
-          if (alert) {
-            controller.enqueue(
-              encoder.encode(`event: alert\ndata: ${JSON.stringify(alert)}\n\n`)
-            );
+          if (lastPostId) {
+            // Fetch posts created after the last one we sent
+            const { data: lastPost } = await supabaseAdmin
+              .from("posts")
+              .select("created_at")
+              .eq("id", lastPostId)
+              .single();
+
+            if (lastPost) {
+              query = query.gt("created_at", lastPost.created_at);
+            }
           }
 
-          // Send updated snapshot periodically
-          if (Math.random() < 0.15) {
-            const updatedSnapshot = realDashboardSnapshot();
-            controller.enqueue(
-              encoder.encode(
-                `event: snapshot\ndata: ${JSON.stringify(updatedSnapshot)}\n\n`
-              )
-            );
+          const { data: newPosts } = await query;
+
+          if (newPosts && newPosts.length > 0) {
+            for (const post of newPosts.reverse()) {
+              const mapped = toSentimentDataPoint(post);
+              controller.enqueue(
+                encoder.encode(`event: new_post\ndata: ${JSON.stringify(mapped)}\n\n`)
+              );
+              lastPostId = post.id;
+            }
+
+            // Check for new alerts
+            const { data: newAlerts } = await supabaseAdmin
+              .from("alerts")
+              .select("*, posts!trigger_post_id(*), counter_narratives(*)")
+              .eq("status", "active")
+              .order("created_at", { ascending: false })
+              .limit(3);
+
+            if (newAlerts && newAlerts.length > 0) {
+              for (const a of newAlerts) {
+                const alert: Alert = {
+                  id: a.id,
+                  type: a.type,
+                  severity: a.severity,
+                  status: a.status,
+                  triggerPost: a.posts
+                    ? toSentimentDataPoint(a.posts)
+                    : toSentimentDataPoint(newPosts[0]),
+                  generatedResponses: (a.counter_narratives || []).map(
+                    (cn: Record<string, unknown>) => ({
+                      id: cn.id as string,
+                      type: cn.type as string,
+                      text: cn.text as string,
+                      platform: cn.platform as DataSource,
+                      approved: cn.approved as boolean,
+                      generatedAt: new Date(cn.generated_at as string),
+                    })
+                  ),
+                  createdAt: new Date(a.created_at),
+                };
+                controller.enqueue(
+                  encoder.encode(`event: alert\ndata: ${JSON.stringify(alert)}\n\n`)
+                );
+              }
+            }
+          }
+
+          // Periodic snapshot refresh (every ~30 seconds = every 6th poll)
+          if (Math.random() < 0.17) {
+            const updatedSnapshot = await fetchSnapshot();
+            if (updatedSnapshot) {
+              controller.enqueue(
+                encoder.encode(
+                  `event: snapshot\ndata: ${JSON.stringify(updatedSnapshot)}\n\n`
+                )
+              );
+            }
           }
         } catch {
           // Silently handle if controller is closed
         }
-      }, 3000);
+      }, 5000);
 
       // Heartbeat every 30s
       const heartbeat = setInterval(() => {

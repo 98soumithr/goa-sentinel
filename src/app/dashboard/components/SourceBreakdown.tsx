@@ -7,9 +7,7 @@ interface SourceBreakdownProps {
 }
 
 const sourceConfig: Record<DataSource, { label: string; icon: string; color: string }> = {
-  twitter: { label: "Twitter/X", icon: "𝕏", color: "#1DA1F2" },
   reddit: { label: "Reddit", icon: "R", color: "#FF4500" },
-  instagram: { label: "Instagram", icon: "IG", color: "#E1306C" },
   news: { label: "News", icon: "N", color: "#10B981" },
   google_reviews: { label: "Google Reviews", icon: "G", color: "#4285F4" },
   tripadvisor: { label: "TripAdvisor", icon: "TA", color: "#00AF87" },

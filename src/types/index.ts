@@ -3,7 +3,7 @@
 // ============================================================
 
 // --- Data Source Types ---
-export type DataSource = 'twitter' | 'reddit' | 'instagram' | 'news' | 'google_reviews' | 'tripadvisor';
+export type DataSource = 'reddit' | 'news' | 'google_reviews' | 'tripadvisor';
 
 export type SentimentLabel = 'positive' | 'negative' | 'neutral';
 

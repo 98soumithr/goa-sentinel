@@ -8,9 +8,7 @@ interface LiveFeedProps {
 }
 
 const sourceConfig: Record<DataSource, { label: string; icon: string; color: string; bg: string }> = {
-  twitter: { label: "Twitter/X", icon: "𝕏", color: "text-sky-400", bg: "bg-sky-500/15 border-sky-500/30" },
   reddit: { label: "Reddit", icon: "r/", color: "text-orange-400", bg: "bg-orange-500/15 border-orange-500/30" },
-  instagram: { label: "Instagram", icon: "IG", color: "text-pink-400", bg: "bg-pink-500/15 border-pink-500/30" },
   news: { label: "News", icon: "📰", color: "text-blue-400", bg: "bg-blue-500/15 border-blue-500/30" },
   google_reviews: { label: "Google Reviews", icon: "G", color: "text-green-400", bg: "bg-green-500/15 border-green-500/30" },
   tripadvisor: { label: "TripAdvisor", icon: "TA", color: "text-emerald-400", bg: "bg-emerald-500/15 border-emerald-500/30" },

@@ -7,9 +7,7 @@
 import { EventEmitter } from 'events';
 import { AgentHealth, DataSource, SentimentDataPoint } from '@/types';
 import { BaseAgent, CollectionResult } from './base-agent';
-import { TwitterAgent } from './twitter-agent';
 import { RedditAgent } from './reddit-agent';
-import { InstagramAgent } from './instagram-agent';
 import { NewsAgent } from './news-agent';
 import { ReviewsAgent } from './reviews-agent';
 
@@ -67,11 +65,9 @@ export class Orchestrator extends EventEmitter {
     this.cycleIntervalMs = options?.cycleIntervalMs ?? (isPrototype ? 5000 : 60000);
     this.defaultQuery = options?.query ?? 'Goa tourism';
 
-    // Instantiate all agents
+    // Instantiate all agents (4 active sources)
     this.agents = [
-      new TwitterAgent(isPrototype),
       new RedditAgent(isPrototype),
-      new InstagramAgent(isPrototype),
       new NewsAgent(isPrototype),
       new ReviewsAgent(isPrototype),
     ];
@@ -240,9 +236,7 @@ export class Orchestrator extends EventEmitter {
     cycleCount: number;
   } {
     const postsBySource: Record<DataSource, number> = {
-      twitter: 0,
       reddit: 0,
-      instagram: 0,
       news: 0,
       google_reviews: 0,
       tripadvisor: 0,

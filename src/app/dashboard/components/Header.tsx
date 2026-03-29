@@ -1,5 +1,7 @@
 "use client";
 
+import { useSession, signOut } from "next-auth/react";
+
 interface HeaderProps {
   connected: boolean;
   lastUpdate: Date;
@@ -8,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ connected, lastUpdate, alertCount, criticalCount }: HeaderProps) {
+  const { data: session } = useSession();
   return (
     <header className="bg-[#111827] border-b border-slate-800 sticky top-0 z-50">
       <div className="max-w-[1920px] mx-auto px-4 py-3 flex items-center justify-between">
@@ -61,10 +64,20 @@ export function Header({ connected, lastUpdate, alertCount, criticalCount }: Hea
             </button>
           </div>
 
-          <div className="text-right hidden lg:block">
-            <p className="text-xs text-slate-500">Minister's Office</p>
-            <p className="text-sm text-slate-300">Rohan Khaunte</p>
-          </div>
+          {session?.user && (
+            <div className="flex items-center gap-3 hidden lg:flex">
+              <div className="text-right">
+                <p className="text-xs text-slate-500">{(session.user as any).role ?? "Admin"}</p>
+                <p className="text-sm text-slate-300">{session.user.name ?? "User"}</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

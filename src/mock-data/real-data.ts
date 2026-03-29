@@ -1165,7 +1165,7 @@ export const realAlerts: Alert[] = [
         id: 'cn-calangute-3',
         type: 'redirect_positive',
         text: 'Goa is taking concrete steps: new tourist helpline 1364 available 24/7 in 8 languages, WhatsApp-based SOS system launching this week, 120 new tourist police deployments, and mandatory CCTV at all beach establishments. We are committed to making Goa the safest beach destination in Asia. #SafeGoa #GoaCares',
-        platform: 'twitter',
+        platform: 'news',
         approved: false,
         generatedAt: ist('2026-03-25 08:30'),
       },
@@ -1221,7 +1221,7 @@ export const realAlerts: Alert[] = [
         id: 'cn-taxi-2',
         type: 'redirect_positive',
         text: 'Good news for Goa visitors: The GoaMiles app now covers 95% of the state with transparent metering. New fixed-rate prepaid taxi counters are operational at both Mopa and Dabolim airports. Electric shuttle buses connecting major beaches in South Goa launched this month. Transportation in Goa is improving rapidly. #GoaTransport #GoaMiles',
-        platform: 'twitter',
+        platform: 'news',
         approved: false,
         generatedAt: ist('2026-03-24 14:30'),
       },
@@ -1281,9 +1281,7 @@ export function realDashboardSnapshot(): DashboardSnapshot {
 
   const sentimentBySource = {} as Record<string, number>;
   const allSources: string[] = [
-    'twitter',
     'reddit',
-    'instagram',
     'news',
     'google_reviews',
     'tripadvisor',
@@ -1357,7 +1355,7 @@ export function realDashboardSnapshot(): DashboardSnapshot {
     criticalAlerts: criticalAlertCount,
     topTrendingTopic,
     sentimentBySource: sentimentBySource as Record<
-      'twitter' | 'reddit' | 'instagram' | 'news' | 'google_reviews' | 'tripadvisor',
+      'reddit' | 'news' | 'google_reviews' | 'tripadvisor',
       number
     >,
     sentimentByLanguage,

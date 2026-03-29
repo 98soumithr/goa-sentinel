@@ -1,24 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// In-memory alert store for prototype
-const acknowledgedAlerts = new Set<string>();
+import { supabaseAdmin } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { alertId, action, acknowledgedBy } = body;
+  const { alertId, action, acknowledgedBy, resolutionNotes } = body;
 
   if (action === "acknowledge") {
-    acknowledgedAlerts.add(alertId);
+    const { error } = await supabaseAdmin
+      .from("alerts")
+      .update({
+        status: "acknowledged",
+        acknowledged_at: new Date().toISOString(),
+        acknowledged_by: acknowledgedBy,
+      })
+      .eq("id", alertId);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
       alertId,
-      acknowledgedBy,
-      acknowledgedAt: new Date(),
+      status: "acknowledged",
     });
   }
 
   if (action === "resolve") {
-    acknowledgedAlerts.add(alertId);
+    const { error } = await supabaseAdmin
+      .from("alerts")
+      .update({
+        status: "resolved",
+        resolved_at: new Date().toISOString(),
+        resolved_by: acknowledgedBy,
+        resolution_notes: resolutionNotes || null,
+      })
+      .eq("id", alertId);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
       alertId,
@@ -30,7 +52,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({
-    acknowledgedAlerts: Array.from(acknowledgedAlerts),
-  });
+  const { data: alerts, error } = await supabaseAdmin
+    .from("alerts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ alerts });
 }

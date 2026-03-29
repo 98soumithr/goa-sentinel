@@ -117,17 +117,13 @@ const TEMPLATE_BANK: TemplateEntry[] = [
 // --- Platform-Specific Formatting ---
 
 const PLATFORM_CHAR_LIMITS: Record<DataSource, number> = {
-  twitter: 280,
   reddit: 10000,
-  instagram: 2200,
   news: 5000,
   google_reviews: 4000,
   tripadvisor: 4000,
 };
 
 const PLATFORM_HASHTAGS: Record<DataSource, string[]> = {
-  twitter: ['#Goa', '#GoaTourism', '#IncredibleIndia'],
-  instagram: ['#Goa', '#GoaTourism', '#GoaVibes', '#IncredibleIndia', '#ExploreGoa'],
   reddit: [], // Reddit doesn't use hashtags
   news: [],
   google_reviews: [],

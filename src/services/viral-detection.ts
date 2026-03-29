@@ -17,9 +17,7 @@ import type { SentimentDataPoint, DataSource, ViralMetrics } from '@/types';
 // Higher weight = content spreads faster on this platform
 
 const PLATFORM_WEIGHTS: Record<DataSource, number> = {
-  twitter: 1.5,      // Fastest spread, real-time
   reddit: 1.2,       // Can go viral quickly via upvotes
-  instagram: 1.3,    // Visual content, high engagement
   news: 1.0,         // Steady but authoritative
   google_reviews: 0.6, // Slow burn, persistent impact
   tripadvisor: 0.7,  // Slow burn, high decision influence

@@ -5,16 +5,6 @@ import type { AgentHealth, DataSource } from "@/types";
 
 const agentDefaults: AgentHealth[] = [
   {
-    name: "Twitter Agent",
-    source: "twitter" as DataSource,
-    status: "running",
-    lastRun: new Date(),
-    postsCollected: 1247,
-    errorsLast24h: 2,
-    avgResponseTime: 340,
-    rateLimit: { remaining: 245, total: 300, resetsAt: new Date(Date.now() + 600000) },
-  },
-  {
     name: "Reddit Agent",
     source: "reddit" as DataSource,
     status: "running",
@@ -23,16 +13,6 @@ const agentDefaults: AgentHealth[] = [
     errorsLast24h: 0,
     avgResponseTime: 210,
     rateLimit: { remaining: 88, total: 100, resetsAt: new Date(Date.now() + 45000) },
-  },
-  {
-    name: "Instagram Agent",
-    source: "instagram" as DataSource,
-    status: "running",
-    lastRun: new Date(),
-    postsCollected: 892,
-    errorsLast24h: 1,
-    avgResponseTime: 520,
-    rateLimit: { remaining: 180, total: 200, resetsAt: new Date(Date.now() + 300000) },
   },
   {
     name: "News Agent",
@@ -45,7 +25,7 @@ const agentDefaults: AgentHealth[] = [
     rateLimit: { remaining: 450, total: 500, resetsAt: new Date(Date.now() + 3600000) },
   },
   {
-    name: "Reviews Agent",
+    name: "Google Reviews Agent",
     source: "google_reviews" as DataSource,
     status: "running",
     lastRun: new Date(),
@@ -126,7 +106,7 @@ export function AgentStatusBar() {
       {/* Expanded details */}
       {expanded && (
         <div className="border-t border-slate-800 px-5 py-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {agents.map((agent) => (
               <div
                 key={agent.name}
